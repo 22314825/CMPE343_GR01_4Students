@@ -1,0 +1,21 @@
+{
+  "name": "cmpe343_gr01_4students",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/22314825/CMPE343_GR01_4Students.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/22314825/CMPE343_GR01_4Students/issues"
+  },
+  "homepage": "https://github.com/22314825/CMPE343_GR01_4Students#readme"
+}
