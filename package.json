@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node src/test/testConnection.js",
+    "migrate": "node migrations/migrate.js"
   },
   "repository": {
     "type": "git",
@@ -13,9 +14,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/22314825/CMPE343_GR01_4Students/issues"
   },
-  "homepage": "https://github.com/22314825/CMPE343_GR01_4Students#readme"
+  "homepage": "https://github.com/22314825/CMPE343_GR01_4Students#readme",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "dotenv": "^17.2.3"
+  }
 }
