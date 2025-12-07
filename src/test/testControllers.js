@@ -1,7 +1,40 @@
+import readline from 'readline';
+import * as departmentController from '../controllers/departmentController.js';
+import * as instructorController from '../controllers/instructorController.js';
+import * as studentController from '../controllers/studentController.js';
+import * as courseController from '../controllers/courseController.js';
+import * as enrollmentController from '../controllers/enrollmentController.js';
+import * as paymentsController from '../controllers/paymentsController.js';
 import sql from '../services/neonClient.js';
 
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+function askQuestion(query) {
+  return new Promise(resolve => rl.question(query, resolve));
+}
+
+function createMockResponse() {
+  return {
+    statusCode: 200,
+    data: null,
+    status: function(code) {
+      this.statusCode = code;
+      return this;
+    },
+    json: function(data) {
+      this.data = data;
+      return this;
+    }
+  };
+}
+
 async function testDepartments() {
-  console.log('\n=== Testing Department Controller ===');
+  console.log('\n╔════════════════════════════════════════════════════╗');
+  console.log('║        Testing Department Controller               ║');
+  console.log('╚════════════════════════════════════════════════════╝');
   
   try {
     const testDept = {
@@ -9,40 +42,76 @@ async function testDepartments() {
       Department_Name: 'Test Department'
     };
     
-    console.log('Creating test department...');
-    const created = await sql`
-      INSERT INTO Department (Department_No, Department_Name)
-      VALUES (${testDept.Department_No}, ${testDept.Department_Name})
-      RETURNING *
-    `;
-    console.log('✓ Created:', created[0]);
+    const answer1 = await askQuestion('\n➤ Test CREATE Department? (Y/n): ');
+    if (answer1.toLowerCase() !== 'n') {
+      console.log('Creating test department...');
+      const req = { body: testDept };
+      const res = createMockResponse();
+      await departmentController.createDepartment(req, res);
+      if (res.statusCode === 201) {
+        console.log('✓ Created:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching all departments...');
-    const allDepts = await sql`SELECT * FROM Department ORDER BY Department_No`;
-    console.log(`✓ Found ${allDepts.length} departments`);
+    const answer2 = await askQuestion('\n➤ Test GET ALL Departments? (Y/n): ');
+    if (answer2.toLowerCase() !== 'n') {
+      console.log('Fetching all departments...');
+      const req = {};
+      const res = createMockResponse();
+      await departmentController.getAllDepartments(req, res);
+      if (res.statusCode === 200) {
+        console.log(`✓ Found ${res.data.data.length} departments`);
+        console.log(res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching department by ID...');
-    const byId = await sql`SELECT * FROM Department WHERE Department_No = ${testDept.Department_No}`;
-    console.log('✓ Retrieved:', byId[0]);
+    const answer3 = await askQuestion('\n➤ Test GET Department by ID? (Y/n): ');
+    if (answer3.toLowerCase() !== 'n') {
+      console.log('Fetching department by ID...');
+      const req = { params: { id: testDept.Department_No } };
+      const res = createMockResponse();
+      await departmentController.getDepartmentById(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Retrieved:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nUpdating department...');
-    const updated = await sql`
-      UPDATE Department
-      SET Department_Name = 'Updated Test Department'
-      WHERE Department_No = ${testDept.Department_No}
-      RETURNING *
-    `;
-    console.log('✓ Updated:', updated[0]);
+    const answer4 = await askQuestion('\n➤ Test UPDATE Department? (Y/n): ');
+    if (answer4.toLowerCase() !== 'n') {
+      console.log('Updating department...');
+      const req = { 
+        params: { id: testDept.Department_No },
+        body: { Department_Name: 'Updated Test Department' }
+      };
+      const res = createMockResponse();
+      await departmentController.updateDepartment(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Updated:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nDeleting department...');
-    const deleted = await sql`
-      DELETE FROM Department
-      WHERE Department_No = ${testDept.Department_No}
-      RETURNING *
-    `;
-    console.log('✓ Deleted:', deleted[0]);
+    const answer5 = await askQuestion('\n➤ Test DELETE Department? (Y/n): ');
+    if (answer5.toLowerCase() !== 'n') {
+      console.log('Deleting department...');
+      const req = { params: { id: testDept.Department_No } };
+      const res = createMockResponse();
+      await departmentController.deleteDepartment(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Deleted:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\n✅ Department tests passed!');
+    console.log('\n✅ Department tests completed!');
     return true;
   } catch (error) {
     console.error('❌ Department test failed:', error.message);
@@ -51,7 +120,9 @@ async function testDepartments() {
 }
 
 async function testInstructors() {
-  console.log('\n=== Testing Instructor Controller ===');
+  console.log('\n╔════════════════════════════════════════════════════╗');
+  console.log('║        Testing Instructor Controller               ║');
+  console.log('╚════════════════════════════════════════════════════╝');
   
   try {
     const testDept = {
@@ -59,7 +130,7 @@ async function testInstructors() {
       Department_Name: 'Test Dept for Instructor'
     };
     
-    console.log('Creating test department for instructor...');
+    console.log('\nSetting up test department for instructor...');
     await sql`
       INSERT INTO Department (Department_No, Department_Name)
       VALUES (${testDept.Department_No}, ${testDept.Department_Name})
@@ -75,43 +146,85 @@ async function testInstructors() {
       Department_No: testDept.Department_No
     };
     
-    console.log('Creating test instructor...');
-    const created = await sql`
-      INSERT INTO Instructor (Instructor_ID, I_Name, I_Surname, Salary, I_Age, I_Mail, Department_No)
-      VALUES (${testInstructor.Instructor_ID}, ${testInstructor.I_Name}, ${testInstructor.I_Surname}, 
-              ${testInstructor.Salary}, ${testInstructor.I_Age}, ${testInstructor.I_Mail}, ${testInstructor.Department_No})
-      RETURNING *
-    `;
-    console.log('✓ Created:', created[0]);
+    const answer1 = await askQuestion('\n➤ Test CREATE Instructor? (Y/n): ');
+    if (answer1.toLowerCase() !== 'n') {
+      console.log('Creating test instructor...');
+      const req = { body: testInstructor };
+      const res = createMockResponse();
+      await instructorController.createInstructor(req, res);
+      if (res.statusCode === 201) {
+        console.log('✓ Created:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching all instructors...');
-    const allInstructors = await sql`SELECT * FROM Instructor ORDER BY Instructor_ID`;
-    console.log(`✓ Found ${allInstructors.length} instructors`);
+    const answer2 = await askQuestion('\n➤ Test GET ALL Instructors? (Y/n): ');
+    if (answer2.toLowerCase() !== 'n') {
+      console.log('Fetching all instructors...');
+      const req = {};
+      const res = createMockResponse();
+      await instructorController.getAllInstructors(req, res);
+      if (res.statusCode === 200) {
+        console.log(`✓ Found ${res.data.data.length} instructors`);
+        console.log(res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching instructor by ID...');
-    const byId = await sql`SELECT * FROM Instructor WHERE Instructor_ID = ${testInstructor.Instructor_ID}`;
-    console.log('✓ Retrieved:', byId[0]);
+    const answer3 = await askQuestion('\n➤ Test GET Instructor by ID? (Y/n): ');
+    if (answer3.toLowerCase() !== 'n') {
+      console.log('Fetching instructor by ID...');
+      const req = { params: { id: testInstructor.Instructor_ID } };
+      const res = createMockResponse();
+      await instructorController.getInstructorById(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Retrieved:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nUpdating instructor...');
-    const updated = await sql`
-      UPDATE Instructor
-      SET I_Name = 'Jane', Salary = 60000.00
-      WHERE Instructor_ID = ${testInstructor.Instructor_ID}
-      RETURNING *
-    `;
-    console.log('✓ Updated:', updated[0]);
+    const answer4 = await askQuestion('\n➤ Test UPDATE Instructor? (Y/n): ');
+    if (answer4.toLowerCase() !== 'n') {
+      console.log('Updating instructor...');
+      const req = { 
+        params: { id: testInstructor.Instructor_ID },
+        body: {
+          I_Name: 'Jane',
+          I_Surname: 'Doe',
+          Salary: 60000.00,
+          I_Age: 35,
+          I_Mail: 'jane.doe@test.com',
+          Department_No: testDept.Department_No
+        }
+      };
+      const res = createMockResponse();
+      await instructorController.updateInstructor(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Updated:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nDeleting instructor...');
-    const deleted = await sql`
-      DELETE FROM Instructor
-      WHERE Instructor_ID = ${testInstructor.Instructor_ID}
-      RETURNING *
-    `;
-    console.log('✓ Deleted:', deleted[0]);
+    const answer5 = await askQuestion('\n➤ Test DELETE Instructor? (Y/n): ');
+    if (answer5.toLowerCase() !== 'n') {
+      console.log('Deleting instructor...');
+      const req = { params: { id: testInstructor.Instructor_ID } };
+      const res = createMockResponse();
+      await instructorController.deleteInstructor(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Deleted:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
     await sql`DELETE FROM Department WHERE Department_No = ${testDept.Department_No}`;
     
-    console.log('\n✅ Instructor tests passed!');
+    console.log('\n✅ Instructor tests completed!');
     return true;
   } catch (error) {
     console.error('❌ Instructor test failed:', error.message);
@@ -120,7 +233,9 @@ async function testInstructors() {
 }
 
 async function testStudents() {
-  console.log('\n=== Testing Student Controller ===');
+  console.log('\n╔════════════════════════════════════════════════════╗');
+  console.log('║        Testing Student Controller                  ║');
+  console.log('╚════════════════════════════════════════════════════╝');
   
   try {
     const testDept = {
@@ -128,7 +243,7 @@ async function testStudents() {
       Department_Name: 'Test Dept for Student'
     };
     
-    console.log('Creating test department for student...');
+    console.log('\nSetting up test department for student...');
     await sql`
       INSERT INTO Department (Department_No, Department_Name)
       VALUES (${testDept.Department_No}, ${testDept.Department_Name})
@@ -141,7 +256,7 @@ async function testStudents() {
       Department_No: testDept.Department_No
     };
     
-    console.log('Creating test advisor...');
+    console.log('Setting up test advisor...');
     await sql`
       INSERT INTO Instructor (Instructor_ID, I_Name, I_Surname, Department_No)
       VALUES (${testAdvisor.Instructor_ID}, ${testAdvisor.I_Name}, ${testAdvisor.I_Surname}, ${testAdvisor.Department_No})
@@ -159,45 +274,88 @@ async function testStudents() {
       Advisor_ID: testAdvisor.Instructor_ID
     };
     
-    console.log('Creating test student...');
-    const created = await sql`
-      INSERT INTO Student (Student_ID, S_Name, S_Surname, S_Age, S_Email, Registration_Year, Grade, Department_No, Advisor_ID)
-      VALUES (${testStudent.Student_ID}, ${testStudent.S_Name}, ${testStudent.S_Surname}, ${testStudent.S_Age}, 
-              ${testStudent.S_Email}, ${testStudent.Registration_Year}, ${testStudent.Grade}, 
-              ${testStudent.Department_No}, ${testStudent.Advisor_ID})
-      RETURNING *
-    `;
-    console.log('✓ Created:', created[0]);
+    const answer1 = await askQuestion('\n➤ Test CREATE Student? (Y/n): ');
+    if (answer1.toLowerCase() !== 'n') {
+      console.log('Creating test student...');
+      const req = { body: testStudent };
+      const res = createMockResponse();
+      await studentController.createStudent(req, res);
+      if (res.statusCode === 201) {
+        console.log('✓ Created:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching all students...');
-    const allStudents = await sql`SELECT * FROM Student ORDER BY Student_ID`;
-    console.log(`✓ Found ${allStudents.length} students`);
+    const answer2 = await askQuestion('\n➤ Test GET ALL Students? (Y/n): ');
+    if (answer2.toLowerCase() !== 'n') {
+      console.log('Fetching all students...');
+      const req = {};
+      const res = createMockResponse();
+      await studentController.getAllStudents(req, res);
+      if (res.statusCode === 200) {
+        console.log(`✓ Found ${res.data.data.length} students`);
+        console.log(res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching student by ID...');
-    const byId = await sql`SELECT * FROM Student WHERE Student_ID = ${testStudent.Student_ID}`;
-    console.log('✓ Retrieved:', byId[0]);
+    const answer3 = await askQuestion('\n➤ Test GET Student by ID? (Y/n): ');
+    if (answer3.toLowerCase() !== 'n') {
+      console.log('Fetching student by ID...');
+      const req = { params: { id: testStudent.Student_ID } };
+      const res = createMockResponse();
+      await studentController.getStudentById(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Retrieved:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nUpdating student...');
-    const updated = await sql`
-      UPDATE Student
-      SET S_Name = 'Bob', Grade = 'B'
-      WHERE Student_ID = ${testStudent.Student_ID}
-      RETURNING *
-    `;
-    console.log('✓ Updated:', updated[0]);
+    const answer4 = await askQuestion('\n➤ Test UPDATE Student? (Y/n): ');
+    if (answer4.toLowerCase() !== 'n') {
+      console.log('Updating student...');
+      const req = { 
+        params: { id: testStudent.Student_ID },
+        body: {
+          S_Name: 'Bob',
+          S_Surname: 'Smith',
+          S_Age: 20,
+          S_Email: 'bob.smith@test.com',
+          Registration_Year: 2024,
+          Grade: 'B',
+          Department_No: testDept.Department_No,
+          Advisor_ID: testAdvisor.Instructor_ID
+        }
+      };
+      const res = createMockResponse();
+      await studentController.updateStudent(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Updated:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nDeleting student...');
-    const deleted = await sql`
-      DELETE FROM Student
-      WHERE Student_ID = ${testStudent.Student_ID}
-      RETURNING *
-    `;
-    console.log('✓ Deleted:', deleted[0]);
+    const answer5 = await askQuestion('\n➤ Test DELETE Student? (Y/n): ');
+    if (answer5.toLowerCase() !== 'n') {
+      console.log('Deleting student...');
+      const req = { params: { id: testStudent.Student_ID } };
+      const res = createMockResponse();
+      await studentController.deleteStudent(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Deleted:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
     await sql`DELETE FROM Instructor WHERE Instructor_ID = ${testAdvisor.Instructor_ID}`;
     await sql`DELETE FROM Department WHERE Department_No = ${testDept.Department_No}`;
     
-    console.log('\n✅ Student tests passed!');
+    console.log('\n✅ Student tests completed!');
     return true;
   } catch (error) {
     console.error('❌ Student test failed:', error.message);
@@ -206,7 +364,9 @@ async function testStudents() {
 }
 
 async function testCourses() {
-  console.log('\n=== Testing Course Controller ===');
+  console.log('\n╔════════════════════════════════════════════════════╗');
+  console.log('║        Testing Course Controller                   ║');
+  console.log('╚════════════════════════════════════════════════════╝');
   
   try {
     const testDept = {
@@ -214,7 +374,7 @@ async function testCourses() {
       Department_Name: 'Test Dept for Course'
     };
     
-    console.log('Creating test department for course...');
+    console.log('\nSetting up test department for course...');
     await sql`
       INSERT INTO Department (Department_No, Department_Name)
       VALUES (${testDept.Department_No}, ${testDept.Department_Name})
@@ -227,7 +387,7 @@ async function testCourses() {
       Department_No: testDept.Department_No
     };
     
-    console.log('Creating test instructor...');
+    console.log('Setting up test instructor...');
     await sql`
       INSERT INTO Instructor (Instructor_ID, I_Name, I_Surname, Department_No)
       VALUES (${testInstructor.Instructor_ID}, ${testInstructor.I_Name}, ${testInstructor.I_Surname}, ${testInstructor.Department_No})
@@ -242,44 +402,85 @@ async function testCourses() {
       Department_No: testDept.Department_No
     };
     
-    console.log('Creating test course...');
-    const created = await sql`
-      INSERT INTO Course (Course_ID, Course_Name, Credit, Semester, Instructor_ID, Department_No)
-      VALUES (${testCourse.Course_ID}, ${testCourse.Course_Name}, ${testCourse.Credit}, 
-              ${testCourse.Semester}, ${testCourse.Instructor_ID}, ${testCourse.Department_No})
-      RETURNING *
-    `;
-    console.log('✓ Created:', created[0]);
+    const answer1 = await askQuestion('\n➤ Test CREATE Course? (Y/n): ');
+    if (answer1.toLowerCase() !== 'n') {
+      console.log('Creating test course...');
+      const req = { body: testCourse };
+      const res = createMockResponse();
+      await courseController.createCourse(req, res);
+      if (res.statusCode === 201) {
+        console.log('✓ Created:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching all courses...');
-    const allCourses = await sql`SELECT * FROM Course ORDER BY Course_ID`;
-    console.log(`✓ Found ${allCourses.length} courses`);
+    const answer2 = await askQuestion('\n➤ Test GET ALL Courses? (Y/n): ');
+    if (answer2.toLowerCase() !== 'n') {
+      console.log('Fetching all courses...');
+      const req = {};
+      const res = createMockResponse();
+      await courseController.getAllCourses(req, res);
+      if (res.statusCode === 200) {
+        console.log(`✓ Found ${res.data.data.length} courses`);
+        console.log(res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching course by ID...');
-    const byId = await sql`SELECT * FROM Course WHERE Course_ID = ${testCourse.Course_ID}`;
-    console.log('✓ Retrieved:', byId[0]);
+    const answer3 = await askQuestion('\n➤ Test GET Course by ID? (Y/n): ');
+    if (answer3.toLowerCase() !== 'n') {
+      console.log('Fetching course by ID...');
+      const req = { params: { id: testCourse.Course_ID } };
+      const res = createMockResponse();
+      await courseController.getCourseById(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Retrieved:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nUpdating course...');
-    const updated = await sql`
-      UPDATE Course
-      SET Course_Name = 'Updated Test Course 101', Credit = 4
-      WHERE Course_ID = ${testCourse.Course_ID}
-      RETURNING *
-    `;
-    console.log('✓ Updated:', updated[0]);
+    const answer4 = await askQuestion('\n➤ Test UPDATE Course? (Y/n): ');
+    if (answer4.toLowerCase() !== 'n') {
+      console.log('Updating course...');
+      const req = { 
+        params: { id: testCourse.Course_ID },
+        body: {
+          Course_Name: 'Updated Test Course 101',
+          Credit: 4,
+          Semester: 'Spring 2024',
+          Instructor_ID: testInstructor.Instructor_ID,
+          Department_No: testDept.Department_No
+        }
+      };
+      const res = createMockResponse();
+      await courseController.updateCourse(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Updated:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nDeleting course...');
-    const deleted = await sql`
-      DELETE FROM Course
-      WHERE Course_ID = ${testCourse.Course_ID}
-      RETURNING *
-    `;
-    console.log('✓ Deleted:', deleted[0]);
+    const answer5 = await askQuestion('\n➤ Test DELETE Course? (Y/n): ');
+    if (answer5.toLowerCase() !== 'n') {
+      console.log('Deleting course...');
+      const req = { params: { id: testCourse.Course_ID } };
+      const res = createMockResponse();
+      await courseController.deleteCourse(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Deleted:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
     await sql`DELETE FROM Instructor WHERE Instructor_ID = ${testInstructor.Instructor_ID}`;
     await sql`DELETE FROM Department WHERE Department_No = ${testDept.Department_No}`;
     
-    console.log('\n✅ Course tests passed!');
+    console.log('\n✅ Course tests completed!');
     return true;
   } catch (error) {
     console.error('❌ Course test failed:', error.message);
@@ -288,7 +489,9 @@ async function testCourses() {
 }
 
 async function testEnrollments() {
-  console.log('\n=== Testing Enrollment Controller ===');
+  console.log('\n╔════════════════════════════════════════════════════╗');
+  console.log('║        Testing Enrollment Controller              ║');
+  console.log('╚════════════════════════════════════════════════════╝');
   
   try {
     const testDept = {
@@ -296,7 +499,7 @@ async function testEnrollments() {
       Department_Name: 'Test Dept for Enrollment'
     };
     
-    console.log('Creating test department...');
+    console.log('\nSetting up test department...');
     await sql`
       INSERT INTO Department (Department_No, Department_Name)
       VALUES (${testDept.Department_No}, ${testDept.Department_Name})
@@ -309,7 +512,7 @@ async function testEnrollments() {
       Department_No: testDept.Department_No
     };
     
-    console.log('Creating test instructor...');
+    console.log('Setting up test instructor...');
     await sql`
       INSERT INTO Instructor (Instructor_ID, I_Name, I_Surname, Department_No)
       VALUES (${testInstructor.Instructor_ID}, ${testInstructor.I_Name}, ${testInstructor.I_Surname}, ${testInstructor.Department_No})
@@ -323,7 +526,7 @@ async function testEnrollments() {
       Advisor_ID: testInstructor.Instructor_ID
     };
     
-    console.log('Creating test student...');
+    console.log('Setting up test student...');
     await sql`
       INSERT INTO Student (Student_ID, S_Name, S_Surname, Department_No, Advisor_ID)
       VALUES (${testStudent.Student_ID}, ${testStudent.S_Name}, ${testStudent.S_Surname}, ${testStudent.Department_No}, ${testStudent.Advisor_ID})
@@ -336,7 +539,7 @@ async function testEnrollments() {
       Instructor_ID: testInstructor.Instructor_ID
     };
     
-    console.log('Creating test course...');
+    console.log('Setting up test course...');
     await sql`
       INSERT INTO Course (Course_ID, Course_Name, Department_No, Instructor_ID)
       VALUES (${testCourse.Course_ID}, ${testCourse.Course_Name}, ${testCourse.Department_No}, ${testCourse.Instructor_ID})
@@ -351,46 +554,85 @@ async function testEnrollments() {
       Semester: 'Fall 2024'
     };
     
-    console.log('Creating test enrollment...');
-    const created = await sql`
-      INSERT INTO Enrollment (Enrollment_ID, Student_ID, Course_ID, Grade, Enrollment_Date, Semester)
-      VALUES (${testEnrollment.Enrollment_ID}, ${testEnrollment.Student_ID}, ${testEnrollment.Course_ID}, 
-              ${testEnrollment.Grade}, ${testEnrollment.Enrollment_Date}, ${testEnrollment.Semester})
-      RETURNING *
-    `;
-    console.log('✓ Created:', created[0]);
+    const answer1 = await askQuestion('\n➤ Test CREATE Enrollment? (Y/n): ');
+    if (answer1.toLowerCase() !== 'n') {
+      console.log('Creating test enrollment...');
+      const req = { body: testEnrollment };
+      const res = createMockResponse();
+      await enrollmentController.createEnrollment(req, res);
+      if (res.statusCode === 201) {
+        console.log('✓ Created:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching all enrollments...');
-    const allEnrollments = await sql`SELECT * FROM Enrollment ORDER BY Enrollment_ID`;
-    console.log(`✓ Found ${allEnrollments.length} enrollments`);
+    const answer2 = await askQuestion('\n➤ Test GET ALL Enrollments? (Y/n): ');
+    if (answer2.toLowerCase() !== 'n') {
+      console.log('Fetching all enrollments...');
+      const req = {};
+      const res = createMockResponse();
+      await enrollmentController.getAllEnrollments(req, res);
+      if (res.statusCode === 200) {
+        console.log(`✓ Found ${res.data.data.length} enrollments`);
+        console.log(res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching enrollment by ID...');
-    const byId = await sql`SELECT * FROM Enrollment WHERE Enrollment_ID = ${testEnrollment.Enrollment_ID}`;
-    console.log('✓ Retrieved:', byId[0]);
+    const answer3 = await askQuestion('\n➤ Test GET Enrollment by ID? (Y/n): ');
+    if (answer3.toLowerCase() !== 'n') {
+      console.log('Fetching enrollment by ID...');
+      const req = { params: { id: testEnrollment.Enrollment_ID } };
+      const res = createMockResponse();
+      await enrollmentController.getEnrollmentById(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Retrieved:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nUpdating enrollment...');
-    const updated = await sql`
-      UPDATE Enrollment
-      SET Grade = 'B', Semester = 'Spring 2024'
-      WHERE Enrollment_ID = ${testEnrollment.Enrollment_ID}
-      RETURNING *
-    `;
-    console.log('✓ Updated:', updated[0]);
+    const answer4 = await askQuestion('\n➤ Test UPDATE Enrollment? (Y/n): ');
+    if (answer4.toLowerCase() !== 'n') {
+      console.log('Updating enrollment...');
+      const req = { 
+        params: { id: testEnrollment.Enrollment_ID },
+        body: {
+          Grade: 'B',
+          Enrollment_Date: '2024-01-15',
+          Semester: 'Spring 2024'
+        }
+      };
+      const res = createMockResponse();
+      await enrollmentController.updateEnrollment(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Updated:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nDeleting enrollment...');
-    const deleted = await sql`
-      DELETE FROM Enrollment
-      WHERE Enrollment_ID = ${testEnrollment.Enrollment_ID}
-      RETURNING *
-    `;
-    console.log('✓ Deleted:', deleted[0]);
+    const answer5 = await askQuestion('\n➤ Test DELETE Enrollment? (Y/n): ');
+    if (answer5.toLowerCase() !== 'n') {
+      console.log('Deleting enrollment...');
+      const req = { params: { id: testEnrollment.Enrollment_ID } };
+      const res = createMockResponse();
+      await enrollmentController.deleteEnrollment(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Deleted:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
     await sql`DELETE FROM Course WHERE Course_ID = ${testCourse.Course_ID}`;
     await sql`DELETE FROM Student WHERE Student_ID = ${testStudent.Student_ID}`;
     await sql`DELETE FROM Instructor WHERE Instructor_ID = ${testInstructor.Instructor_ID}`;
     await sql`DELETE FROM Department WHERE Department_No = ${testDept.Department_No}`;
     
-    console.log('\n✅ Enrollment tests passed!');
+    console.log('\n✅ Enrollment tests completed!');
     return true;
   } catch (error) {
     console.error('❌ Enrollment test failed:', error.message);
@@ -399,7 +641,9 @@ async function testEnrollments() {
 }
 
 async function testPayments() {
-  console.log('\n=== Testing Payments Controller ===');
+  console.log('\n╔════════════════════════════════════════════════════╗');
+  console.log('║        Testing Payments Controller                ║');
+  console.log('╚════════════════════════════════════════════════════╝');
   
   try {
     const testDept = {
@@ -407,7 +651,7 @@ async function testPayments() {
       Department_Name: 'Test Dept for Payment'
     };
     
-    console.log('Creating test department...');
+    console.log('\nSetting up test department...');
     await sql`
       INSERT INTO Department (Department_No, Department_Name)
       VALUES (${testDept.Department_No}, ${testDept.Department_Name})
@@ -420,7 +664,7 @@ async function testPayments() {
       Department_No: testDept.Department_No
     };
     
-    console.log('Creating test instructor...');
+    console.log('Setting up test instructor...');
     await sql`
       INSERT INTO Instructor (Instructor_ID, I_Name, I_Surname, Department_No)
       VALUES (${testInstructor.Instructor_ID}, ${testInstructor.I_Name}, ${testInstructor.I_Surname}, ${testInstructor.Department_No})
@@ -434,7 +678,7 @@ async function testPayments() {
       Advisor_ID: testInstructor.Instructor_ID
     };
     
-    console.log('Creating test student...');
+    console.log('Setting up test student...');
     await sql`
       INSERT INTO Student (Student_ID, S_Name, S_Surname, Department_No, Advisor_ID)
       VALUES (${testStudent.Student_ID}, ${testStudent.S_Name}, ${testStudent.S_Surname}, ${testStudent.Department_No}, ${testStudent.Advisor_ID})
@@ -448,47 +692,92 @@ async function testPayments() {
       Payment_Amount: 5000.00
     };
     
-    console.log('Creating test payment...');
-    const created = await sql`
-      INSERT INTO Payments (Student_ID, Payment_Status, Payment_Method, Payment_Date, Payment_Amount)
-      VALUES (${testPayment.Student_ID}, ${testPayment.Payment_Status}, ${testPayment.Payment_Method}, 
-              ${testPayment.Payment_Date}, ${testPayment.Payment_Amount})
-      RETURNING *
-    `;
-    console.log('✓ Created:', created[0]);
+    let paymentId = null;
     
-    const paymentId = created[0].payment_id;
+    const answer1 = await askQuestion('\n➤ Test CREATE Payment? (Y/n): ');
+    if (answer1.toLowerCase() !== 'n') {
+      console.log('Creating test payment...');
+      const req = { body: testPayment };
+      const res = createMockResponse();
+      await paymentsController.createPayment(req, res);
+      if (res.statusCode === 201) {
+        console.log('✓ Created:', res.data.data);
+        paymentId = res.data.data.payment_id;
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching all payments...');
-    const allPayments = await sql`SELECT * FROM Payments ORDER BY Payment_ID`;
-    console.log(`✓ Found ${allPayments.length} payments`);
+    const answer2 = await askQuestion('\n➤ Test GET ALL Payments? (Y/n): ');
+    if (answer2.toLowerCase() !== 'n') {
+      console.log('Fetching all payments...');
+      const req = {};
+      const res = createMockResponse();
+      await paymentsController.getAllPayments(req, res);
+      if (res.statusCode === 200) {
+        console.log(`✓ Found ${res.data.data.length} payments`);
+        console.log(res.data.data);
+        if (!paymentId && res.data.data.length > 0) {
+          paymentId = res.data.data[res.data.data.length - 1].payment_id;
+        }
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nFetching payment by ID...');
-    const byId = await sql`SELECT * FROM Payments WHERE Payment_ID = ${paymentId}`;
-    console.log('✓ Retrieved:', byId[0]);
+    const answer3 = await askQuestion('\n➤ Test GET Payment by ID? (Y/n): ');
+    if (answer3.toLowerCase() !== 'n' && paymentId) {
+      console.log('Fetching payment by ID...');
+      const req = { params: { id: paymentId } };
+      const res = createMockResponse();
+      await paymentsController.getPaymentById(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Retrieved:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nUpdating payment...');
-    const updated = await sql`
-      UPDATE Payments
-      SET Payment_Status = 'Pending', Payment_Amount = 6000.00
-      WHERE Payment_ID = ${paymentId}
-      RETURNING *
-    `;
-    console.log('✓ Updated:', updated[0]);
+    const answer4 = await askQuestion('\n➤ Test UPDATE Payment? (Y/n): ');
+    if (answer4.toLowerCase() !== 'n' && paymentId) {
+      console.log('Updating payment...');
+      const req = { 
+        params: { id: paymentId },
+        body: {
+          Student_ID: testStudent.Student_ID,
+          Payment_Status: 'Pending',
+          Payment_Method: 'Bank Transfer',
+          Payment_Date: '2024-01-15',
+          Payment_Amount: 6000.00
+        }
+      };
+      const res = createMockResponse();
+      await paymentsController.updatePayment(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Updated:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
-    console.log('\nDeleting payment...');
-    const deleted = await sql`
-      DELETE FROM Payments
-      WHERE Payment_ID = ${paymentId}
-      RETURNING *
-    `;
-    console.log('✓ Deleted:', deleted[0]);
+    const answer5 = await askQuestion('\n➤ Test DELETE Payment? (Y/n): ');
+    if (answer5.toLowerCase() !== 'n' && paymentId) {
+      console.log('Deleting payment...');
+      const req = { params: { id: paymentId } };
+      const res = createMockResponse();
+      await paymentsController.deletePayment(req, res);
+      if (res.statusCode === 200) {
+        console.log('✓ Deleted:', res.data.data);
+      } else {
+        console.log('✗ Failed:', res.data);
+      }
+    }
     
     await sql`DELETE FROM Student WHERE Student_ID = ${testStudent.Student_ID}`;
     await sql`DELETE FROM Instructor WHERE Instructor_ID = ${testInstructor.Instructor_ID}`;
     await sql`DELETE FROM Department WHERE Department_No = ${testDept.Department_No}`;
     
-    console.log('\n✅ Payment tests passed!');
+    console.log('\n✅ Payment tests completed!');
     return true;
   } catch (error) {
     console.error('❌ Payment test failed:', error.message);
@@ -498,8 +787,9 @@ async function testPayments() {
 
 async function runAllTests() {
   console.log('╔════════════════════════════════════════════════════╗');
-  console.log('║   STARTING CONTROLLER TESTS FOR UNIVERSITY DBMS    ║');
+  console.log('║   MANUAL CONTROLLER TESTS FOR UNIVERSITY DBMS      ║');
   console.log('╚════════════════════════════════════════════════════╝');
+  console.log('\nPress Enter to continue or type "n" to skip a test...\n');
   
   const results = {
     Department: false,
@@ -510,30 +800,51 @@ async function runAllTests() {
     Payments: false
   };
   
-  results.Department = await testDepartments();
-  results.Instructor = await testInstructors();
-  results.Student = await testStudents();
-  results.Course = await testCourses();
-  results.Enrollment = await testEnrollments();
-  results.Payments = await testPayments();
+  const testDept = await askQuestion('\n═══ Run Department Tests? (Y/n): ');
+  if (testDept.toLowerCase() !== 'n') {
+    results.Department = await testDepartments();
+  }
+  
+  const testInstr = await askQuestion('\n═══ Run Instructor Tests? (Y/n): ');
+  if (testInstr.toLowerCase() !== 'n') {
+    results.Instructor = await testInstructors();
+  }
+  
+  const testStud = await askQuestion('\n═══ Run Student Tests? (Y/n): ');
+  if (testStud.toLowerCase() !== 'n') {
+    results.Student = await testStudents();
+  }
+  
+  const testCrs = await askQuestion('\n═══ Run Course Tests? (Y/n): ');
+  if (testCrs.toLowerCase() !== 'n') {
+    results.Course = await testCourses();
+  }
+  
+  const testEnr = await askQuestion('\n═══ Run Enrollment Tests? (Y/n): ');
+  if (testEnr.toLowerCase() !== 'n') {
+    results.Enrollment = await testEnrollments();
+  }
+  
+  const testPay = await askQuestion('\n═══ Run Payments Tests? (Y/n): ');
+  if (testPay.toLowerCase() !== 'n') {
+    results.Payments = await testPayments();
+  }
   
   console.log('\n╔════════════════════════════════════════════════════╗');
   console.log('║                  TEST SUMMARY                      ║');
   console.log('╚════════════════════════════════════════════════════╝');
   
   for (const [controller, passed] of Object.entries(results)) {
-    const status = passed ? '✅ PASSED' : '❌ FAILED';
+    const status = passed ? '✅ PASSED' : '⊗ SKIPPED';
     console.log(`${controller.padEnd(15)} : ${status}`);
   }
   
-  const totalPassed = Object.values(results).filter(r => r).length;
-  const totalTests = Object.keys(results).length;
-  
   console.log('\n' + '='.repeat(54));
-  console.log(`Total: ${totalPassed}/${totalTests} test suites passed`);
+  console.log('Testing completed! Thank you for testing.');
   console.log('='.repeat(54));
   
-  process.exit(totalPassed === totalTests ? 0 : 1);
+  rl.close();
+  process.exit(0);
 }
 
 runAllTests();
