@@ -72,7 +72,7 @@ CREATE TABLE Enrollment (
 
 -- Table: Payments
 CREATE TABLE Payments (
-    Payment_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Payment_ID SERIAL PRIMARY KEY,
     Student_ID INT,
     Payment_Status VARCHAR(20),
     Payment_Method VARCHAR(50),
