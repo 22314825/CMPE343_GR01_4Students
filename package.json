@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node src/test/testConnection.js",
+    "test": "node src/test/testControllers.js",
+    "test controllers": "node src/test/testConnection.js",
     "migrate": "node migrations/migrate.js"
   },
   "repository": {
