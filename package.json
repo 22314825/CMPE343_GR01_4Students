@@ -21,6 +21,7 @@
   "homepage": "https://github.com/22314825/CMPE343_GR01_4Students#readme",
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "path": "^0.12.7"
   }
 }
