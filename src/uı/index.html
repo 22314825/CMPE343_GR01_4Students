@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Data Manager</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f7;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #0003;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+        }
+        #insertBtn { background: #4caf50; color: white; }
+        #updateBtn { background: #2196f3; color: white; }
+        #deleteBtn { background: #f44336; color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>UI Data Manager</h1>
+
+    <div class="input-group">
+        <input type="text" id="indexInput" placeholder="Enter Index">
+        <input type="text" id="valueInput" placeholder="Enter Value">
+    </div>
+
+    <div class="input-group">
+        <button id="insertBtn">Insert</button>
+        <button id="updateBtn">Update</button>
+        <button id="deleteBtn">Delete</button>
+    </div>
+
+    <!-- CURRENT DATA TABLE -->
+    <h2>Current Values</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Index</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody"></tbody>
+    </table>
+
+    <!-- OLD VALUES TABLE -->
+    <h2>Old Values (History)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Index</th>
+                <th>Old Value</th>
+            </tr>
+        </thead>
+        <tbody id="oldValuesTableBody"></tbody>
+    </table>
+
+</div>
+
+<script src="renderer.js"></script>
+</body>
+</html>
