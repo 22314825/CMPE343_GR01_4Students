@@ -16,7 +16,7 @@ export async function getTop5HighestCreditCourses(res) {
     `;
     
 
-    handleSuccess(res, result[0], 'Top 5 highest credit courses retrieved');
+    handleSuccess(res, result, 'Top 5 highest credit courses retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get top 5 highest credit courses');
   }
@@ -31,7 +31,7 @@ export async function getCourseCountPerStudent(res) {
       GROUP BY s.Student_ID
     `;
 
-    handleSuccess(res, result[0], 'Course count per student retrieved');
+    handleSuccess(res, result, 'Course count per student retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get course count per student');
   }
@@ -46,7 +46,7 @@ export async function getStudentCountPerDepartment(res) {
       GROUP BY d.Department_No
     `;
 
-    handleSuccess(res, result[0], 'Student count per department retrieved');
+    handleSuccess(res, result, 'Student count per department retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get student count per department');
   }
@@ -61,7 +61,7 @@ export async function getTotalPaymentPerStudent(res) {
       GROUP BY s.Student_ID
     `;
 
-    handleSuccess(res, result[0], 'Total payments per student retrieved');
+    handleSuccess(res, result, 'Total payments per student retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get total payment per student');
   }
@@ -75,7 +75,7 @@ export async function getCoursesAboveAvgCredit(res) {
       WHERE Credit > (SELECT AVG(Credit) FROM Course)
     `;
 
-    handleSuccess(res, result[0], 'Courses above average credit retrieved');
+    handleSuccess(res, result, 'Courses above average credit retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get courses above average credit');
   }
@@ -94,7 +94,7 @@ export async function getMostEnrolledCourse(res) {
 
     if (result.length === 0) return handleNotFound(res, 'Course');
 
-    handleSuccess(res, result[0], 'Most enrolled course retrieved');
+    handleSuccess(res, result, 'Most enrolled course retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get most enrolled course');
   }
@@ -109,7 +109,7 @@ export async function getRecentPayments30Days(res) {
       WHERE p.Payment_Date >= CURRENT_DATE - INTERVAL '30 days'
     `;
 
-    handleSuccess(res, result[0], 'Recent payments (last 30 days) retrieved');
+    handleSuccess(res, result, 'Recent payments (last 30 days) retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get recent payments');
   }
@@ -124,7 +124,7 @@ export async function getAverageGradePerCourse(res) {
       GROUP BY c.Course_ID
     `;
 
-    handleSuccess(res, result[0], 'Average grade per course retrieved');
+    handleSuccess(res, result, 'Average grade per course retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get average grade per course');
   }
@@ -138,7 +138,7 @@ export async function getStudentsSurnameEndsWithSon(res) {
       WHERE LOWER(S_Surname) LIKE '%son'
     `;
 
-    handleSuccess(res, result[0], 'Students with surname ending with "son" retrieved');
+    handleSuccess(res, result, 'Students with surname ending with "son" retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get students by surname pattern');
   }
@@ -153,7 +153,7 @@ export async function getEnrollmentStatsPerCourse(res) {
       GROUP BY c.Course_ID
     `;
 
-    handleSuccess(res, result[0], 'Enrollment stats per course retrieved');
+    handleSuccess(res, result, 'Enrollment stats per course retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get enrollment stats per course');
   }
@@ -167,7 +167,7 @@ export async function getStudentsNotEnrolled(res) {
       WHERE Student_ID NOT IN (SELECT Student_ID FROM Enrollment)
     `;
 
-    handleSuccess(res, result[0], 'Students not enrolled in any course retrieved');
+    handleSuccess(res, result, 'Students not enrolled in any course retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get students not enrolled');
   }
@@ -184,7 +184,7 @@ export async function getHighestSalaryInstructor(res) {
 
     if (result.length === 0) return handleNotFound(res, 'Instructor');
 
-    handleSuccess(res, result[0], 'Highest salary instructor retrieved');
+    handleSuccess(res, result, 'Highest salary instructor retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get highest salary instructor');
   }
@@ -199,7 +199,7 @@ export async function getAvgSalaryPerDepartment(res) {
       GROUP BY d.Department_No
     `;
 
-    handleSuccess(res, result[0], 'Average instructor salary per department retrieved');
+    handleSuccess(res, result, 'Average instructor salary per department retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get average salary per department');
   }
@@ -230,7 +230,7 @@ export async function getEnrollmentFormattedDates(res) {
       JOIN Enrollment e ON s.Student_ID = e.Student_ID
     `;
 
-    handleSuccess(res, result[0], 'Enrollment formatted dates retrieved');
+    handleSuccess(res, result, 'Enrollment formatted dates retrieved');
   } catch (error) {
     handleError(res, error, 'Failed to get enrollment formatted dates');
   }

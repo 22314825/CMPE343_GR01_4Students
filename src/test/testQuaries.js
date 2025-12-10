@@ -33,36 +33,155 @@ function createMockResponse() {
 }
 
 async function setupBasicEntities(base) {
-  // base: integer base for unique IDs
+  // Expanded test data setup for comprehensive query testing
+  // Creates multiple departments, instructors, students, courses, enrollments, and payments
+  
+  const res = createMockResponse();
+  
+  // IDs for tracking created entities
   const ids = {
-    dept: base + 1,
-    instr: base + 2,
-    student: base + 3,
-    course: base + 4,
-    enrollment: base + 5,
-    payment: base + 6
+    depts: [],
+    instrs: [],
+    students: [],
+    courses: [],
+    enrollments: [],
+    payments: []
   };
 
-  const res = createMockResponse();
+  // Create 3 Departments
+  for (let i = 0; i < 3; i++) {
+    const deptId = base + i;
+    await departmentController.createDepartment(
+      { body: { Department_No: deptId, Department_Name: `Department ${deptId}` } },
+      res
+    );
+    ids.depts.push(deptId);
+  }
 
-  // Department
-  await departmentController.createDepartment({ body: { Department_No: ids.dept, Department_Name: `Test Dept ${ids.dept}` } }, res);
+  // Create 5 Instructors (distributed across departments)
+  const salaries = [5000, 6500, 7200, 8500, 9000]; // Varying salaries for query #12, #13
+  for (let i = 0; i < 5; i++) {
+    const instrId = base + 100 + i;
+    const deptIdx = i % 3;
+    await instructorController.createInstructor(
+      { body: {
+        Instructor_ID: instrId,
+        I_Name: 'Instructor',
+        I_Surname: `Prof${instrId}`,
+        Salary: salaries[i],
+        I_Age: 35 + i,
+        I_Mail: `prof${instrId}@university.edu`,
+        Department_No: ids.depts[deptIdx]
+      } },
+      res
+    );
+    ids.instrs.push(instrId);
+  }
 
-  // Instructor
-  await instructorController.createInstructor({ body: { Instructor_ID: ids.instr, I_Name: 'Test', I_Surname: `Instr${ids.instr}`, Salary: 1000.00, I_Age: 40, I_Mail: `instr${ids.instr}@test.com`, Department_No: ids.dept } }, res);
+  // Create 10 Students (distributed across departments)
+  for (let i = 0; i < 10; i++) {
+    const studentId = base + 200 + i;
+    const deptIdx = i % 3;
+    const advisorIdx = i % 5;
+    // Some students end with 'son' (query #9)
+    const surnames = ['Anderson', 'Johnson', 'Nelson', 'Smith', 'Davis', 'Wilson', 'Jackson', 'Brown', 'Thompson', 'Garcia'];
+    
+    await studentController.createStudent(
+      { body: {
+        Student_ID: studentId,
+        S_Name: 'Student',
+        S_Surname: surnames[i],
+        S_Age: 19 + (i % 4),
+        S_Email: `student${studentId}@university.edu`,
+        Registration_Year: 2023 + (i % 2),
+        Grade: 'A',
+        Department_No: ids.depts[deptIdx],
+        Advisor_ID: ids.instrs[advisorIdx]
+      } },
+      res
+    );
+    ids.students.push(studentId);
+  }
 
-  // Student
-  await studentController.createStudent({ body: { Student_ID: ids.student, S_Name: 'Test', S_Surname: `Stud${ids.student}`, S_Age: 20, S_Email: `stud${ids.student}@test.com`, Registration_Year: 2024, Grade: 'A', Department_No: ids.dept, Advisor_ID: ids.instr } }, res);
+  // Create 8 Courses with varying credits (query #1, #5)
+  const courseCredits = [2, 3, 3, 4, 4, 5, 5, 6]; // Mix of credits
+  const courseNames = ['Database Systems', 'Web Development', 'Data Science', 'AI Fundamentals', 
+                       'Software Engineering', 'Cloud Computing', 'Mobile Apps', 'Cybersecurity'];
+  for (let i = 0; i < 8; i++) {
+    const courseId = base + 300 + i;
+    const instrIdx = i % 5;
+    const deptIdx = i % 3;
+    
+    await courseController.createCourse(
+      { body: {
+        Course_ID: courseId,
+        Course_Name: courseNames[i],
+        Credit: courseCredits[i],
+        Semester: 'Fall 2024',
+        Instructor_ID: ids.instrs[instrIdx],
+        Department_No: ids.depts[deptIdx]
+      } },
+      res
+    );
+    ids.courses.push(courseId);
+  }
 
-  // Course
-  await courseController.createCourse({ body: { Course_ID: ids.course, Course_Name: `Course ${ids.course}`, Credit: 3, Semester: 'Fall 2024', Instructor_ID: ids.instr, Department_No: ids.dept } }, res);
+  // Create 15 Enrollments (students enrolled in multiple courses, query #2, #6, #10)
+  const enrollmentConfigs = [
+    [0, 0], [0, 1], [0, 2],    // Student 0 in 3 courses
+    [1, 1], [1, 2], [1, 3],    // Student 1 in 3 courses
+    [2, 0], [2, 3], [2, 4],    // Student 2 in 3 courses
+    [3, 5], [3, 6],            // Student 3 in 2 courses
+    [4, 6], [4, 7],            // Student 4 in 2 courses
+    [5, 7],                    // Student 5 in 1 course
+    [6, 0],                    // Student 6 in 1 course
+    // Students 7, 8, 9 have no enrollments (query #11)
+  ];
+  
+  for (let i = 0; i < enrollmentConfigs.length; i++) {
+    const [studentIdx, courseIdx] = enrollmentConfigs[i];
+    const enrollId = base + 400 + i;
+    
+    await enrollmentController.createEnrollment(
+      { body: {
+        Enrollment_ID: enrollId,
+        Student_ID: ids.students[studentIdx],
+        Course_ID: ids.courses[courseIdx],
+        Grade: 'A',
+        Enrollment_Date: '2024-01-15',
+        Semester: 'Fall 2024'
+      } },
+      res
+    );
+    ids.enrollments.push(enrollId);
+  }
 
-  // Enrollment
-  await enrollmentController.createEnrollment({ body: { Enrollment_ID: ids.enrollment, Student_ID: ids.student, Course_ID: ids.course, Grade: 'A', Enrollment_Date: '2024-01-15', Semester: 'Fall 2024' } }, res);
+  // Create 12 Payments with varying amounts (query #4, #14)
+  // Some students pay over 5000 total
+  const paymentAmounts = [1000, 1500, 2000, 2500, 1000, 2000, 3000, 1500, 2000, 1000, 1500, 2000];
+  const today = new Date();
+  
+  for (let i = 0; i < paymentAmounts.length; i++) {
+    const studentIdx = i % 10;
+    const daysAgo = i < 5 ? Math.floor(Math.random() * 20) : 40 + Math.floor(Math.random() * 30); // Mix recent and old
+    const paymentDate = new Date(today.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+    const dateStr = paymentDate.toISOString().split('T')[0];
+    
+    await paymentsController.createPayment(
+      { body: {
+        Student_ID: ids.students[studentIdx],
+        Payment_Status: 'Completed',
+        Payment_Method: 'Card',
+        Payment_Date: dateStr,
+        Payment_Amount: paymentAmounts[i]
+      } },
+      res
+    );
+    ids.payments.push(i); // Track payment count
+  }
 
-  // Payment
-  await paymentsController.createPayment({ body: { Student_ID: ids.student, Payment_Status: 'Completed', Payment_Method: 'Card', Payment_Date: new Date().toISOString().split('T')[0], Payment_Amount: 1000.00 } }, res);
-
+  console.log(`✓ Created ${ids.depts.length} departments, ${ids.instrs.length} instructors, ${ids.students.length} students, ${ids.courses.length} courses, ${ids.enrollments.length} enrollments, ${ids.payments.length} payments`);
+  
   return ids;
 }
 
@@ -70,12 +189,50 @@ async function cleanupBasicEntities(ids) {
   // Use direct SQL deletes for cleanup to ensure removal
   try {
     if (!ids) return;
-    await sql`DELETE FROM Enrollment WHERE Enrollment_ID = ${ids.enrollment}`;
-    await sql`DELETE FROM Payments WHERE Student_ID = ${ids.student}`;
-    await sql`DELETE FROM Course WHERE Course_ID = ${ids.course}`;
-    await sql`DELETE FROM Student WHERE Student_ID = ${ids.student}`;
-    await sql`DELETE FROM Instructor WHERE Instructor_ID = ${ids.instr}`;
-    await sql`DELETE FROM Department WHERE Department_No = ${ids.dept}`;
+
+    // Delete all enrollments first
+    if (ids.enrollments && ids.enrollments.length > 0) {
+      for (const enrollId of ids.enrollments) {
+        await sql`DELETE FROM Enrollment WHERE Enrollment_ID = ${ids.enrollments[enrollId] || enrollId}`.catch(() => {});
+      }
+    }
+
+    // Delete all payments
+    if (ids.students && ids.students.length > 0) {
+      for (const studentId of ids.students) {
+        await sql`DELETE FROM Payments WHERE Student_ID = ${studentId}`.catch(() => {});
+      }
+    }
+
+    // Delete all courses
+    if (ids.courses && ids.courses.length > 0) {
+      for (const courseId of ids.courses) {
+        await sql`DELETE FROM Course WHERE Course_ID = ${courseId}`.catch(() => {});
+      }
+    }
+
+    // Delete all students
+    if (ids.students && ids.students.length > 0) {
+      for (const studentId of ids.students) {
+        await sql`DELETE FROM Student WHERE Student_ID = ${studentId}`.catch(() => {});
+      }
+    }
+
+    // Delete all instructors
+    if (ids.instrs && ids.instrs.length > 0) {
+      for (const instrId of ids.instrs) {
+        await sql`DELETE FROM Instructor WHERE Instructor_ID = ${instrId}`.catch(() => {});
+      }
+    }
+
+    // Delete all departments
+    if (ids.depts && ids.depts.length > 0) {
+      for (const deptId of ids.depts) {
+        await sql`DELETE FROM Department WHERE Department_No = ${deptId}`.catch(() => {});
+      }
+    }
+
+    console.log('✓ Cleanup completed');
   } catch (err) {
     console.error('Cleanup error:', err.message);
   }
