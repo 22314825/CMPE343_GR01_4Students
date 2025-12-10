@@ -1,5 +1,5 @@
-import sql from '../services/neonClient.js';
-import { handleError, handleNotFound, handleSuccess, handleCreated } from '../helpers/dbHelpers.js';
+import sql from '../../services/neonClient.js';
+import { handleError, handleNotFound, handleSuccess, handleCreated } from '../../helpers/dbHelpers.js';
 
 export async function getAllStudents(req, res) {
   try {

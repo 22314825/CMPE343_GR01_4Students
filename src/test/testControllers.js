@@ -1,10 +1,10 @@
 import readline from 'readline';
-import * as departmentController from '../controllers/departmentController.js';
-import * as instructorController from '../controllers/instructorController.js';
-import * as studentController from '../controllers/studentController.js';
-import * as courseController from '../controllers/courseController.js';
-import * as enrollmentController from '../controllers/enrollmentController.js';
-import * as paymentsController from '../controllers/paymentsController.js';
+import * as departmentController from '../controllers/tables/departmentController.js';
+import * as instructorController from '../controllers/tables/instructorController.js';
+import * as studentController from '../controllers/tables/studentController.js';
+import * as courseController from '../controllers/tables/courseController.js';
+import * as enrollmentController from '../controllers/tables/enrollmentController.js';
+import * as paymentsController from '../controllers/tables/paymentsController.js';
 import sql from '../services/neonClient.js';
 
 const rl = readline.createInterface({
