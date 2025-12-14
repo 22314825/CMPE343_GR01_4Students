@@ -6,6 +6,7 @@ import { handleError, handleNotFound, handleSuccess } from '../../helpers/dbHelp
   Each function performs a read-only SQL query and returns JSON via helper functions.
 */
 
+// # Query 1: Get Top 5 Highest Credit Courses
 export async function getTop5HighestCreditCourses(res) {
   try {
     const result = await sql`
@@ -22,6 +23,7 @@ export async function getTop5HighestCreditCourses(res) {
   }
 }
 
+// # Query 2: Get Top 5 Highest Credit Courses
 export async function getCourseCountPerStudent(res) {
   try {
     const result = await sql`
@@ -37,6 +39,7 @@ export async function getCourseCountPerStudent(res) {
   }
 }
 
+// # Query 3: Get Student Count Per Department
 export async function getStudentCountPerDepartment(res) {
   try {
     const result = await sql`
@@ -52,6 +55,7 @@ export async function getStudentCountPerDepartment(res) {
   }
 }
 
+// # Query 4: Get Total Payment Per Student
 export async function getTotalPaymentPerStudent(res) {
   try {
     const result = await sql`
@@ -67,6 +71,7 @@ export async function getTotalPaymentPerStudent(res) {
   }
 }
 
+// # Query 5: Get Courses Above Average Credit
 export async function getCoursesAboveAvgCredit(res) {
   try {
     const result = await sql`
@@ -81,6 +86,7 @@ export async function getCoursesAboveAvgCredit(res) {
   }
 }
 
+// # Query 6: Get Most Enrolled Course
 export async function getMostEnrolledCourse(res) {
   try {
     const result = await sql`
@@ -100,6 +106,7 @@ export async function getMostEnrolledCourse(res) {
   }
 }
 
+// # Query 7: Get Recent Payments in Last 30 Days
 export async function getRecentPayments30Days(res) {
   try {
     const result = await sql`
@@ -115,6 +122,7 @@ export async function getRecentPayments30Days(res) {
   }
 }
 
+// # Query 8: Get Average Grade Per Course
 export async function getAverageGradePerCourse(res) {
   try {
     const result = await sql`
@@ -130,6 +138,7 @@ export async function getAverageGradePerCourse(res) {
   }
 }
 
+// # Query 9: Get Students with Surname Ending with 'son'
 export async function getStudentsSurnameEndsWithSon(res) {
   try {
     const result = await sql`
@@ -144,6 +153,7 @@ export async function getStudentsSurnameEndsWithSon(res) {
   }
 }
 
+// # Query 10: Get Enrollment Stats Per Course
 export async function getEnrollmentStatsPerCourse(res) {
   try {
     const result = await sql`
@@ -159,6 +169,7 @@ export async function getEnrollmentStatsPerCourse(res) {
   }
 }
 
+// # Query 11: Get Students Not Enrolled in Any Course
 export async function getStudentsNotEnrolled(res) {
   try {
     const result = await sql`
@@ -173,6 +184,7 @@ export async function getStudentsNotEnrolled(res) {
   }
 }
 
+// # Query 12: Get Highest Salary Instructor
 export async function getHighestSalaryInstructor(res) {
   try {
     const result = await sql`
@@ -190,6 +202,7 @@ export async function getHighestSalaryInstructor(res) {
   }
 }
 
+// # Query 13: Get Average Salary Per Department
 export async function getAvgSalaryPerDepartment(res) {
   try {
     const result = await sql`
@@ -205,6 +218,7 @@ export async function getAvgSalaryPerDepartment(res) {
   }
 }
 
+// # Query 14: Get Students Who Paid More Than 5000
 export async function getStudentsPaidMoreThan5000(res) {
   try {
     const result = await sql`
@@ -221,6 +235,7 @@ export async function getStudentsPaidMoreThan5000(res) {
   }
 }
 
+// # Query 15: Get Enrollment Dates Formatted
 export async function getEnrollmentFormattedDates(res) {
   try {
     const result = await sql`
