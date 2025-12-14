@@ -320,12 +320,12 @@ async function testRecentPayments30Days(ids) {
 }
 
 
-async function testAverageGradePerCourse(ids) {
+async function testAverageCourseCreditPerDepartment(ids) {
   console.log('\n╔════════════════════════════════════════════════════╗');
-  console.log('║   8) Average Grade Per Course                      ║');
+  console.log('║   8) Average Course Credit Per Department          ║');
   console.log('╚════════════════════════════════════════════════════╝');
 
-  return await runWithSetup(18000, quariesController.getAverageGradePerCourse, ids);
+  return await runWithSetup(18000, quariesController.getAverageCourseCreditPerDepartment, ids);
 }
 
 
@@ -338,12 +338,12 @@ async function testStudentsSurnameEndsWithSon(ids) {
 }
 
 
-async function testEnrollmentStatsPerCourse(ids) {
+async function testEnrollmentCountPerCourse(ids) {
   console.log('\n╔════════════════════════════════════════════════════╗');
-  console.log('║  10) Enrollment Stats Per Course                   ║');
+  console.log('║  10) Enrollment Count Per Course                   ║');
   console.log('╚════════════════════════════════════════════════════╝');
 
-  return await runWithSetup(20000, quariesController.getEnrollmentStatsPerCourse, ids);
+  return await runWithSetup(20000, quariesController.getEnrollmentCountPerCourse, ids);
 }
 
 
@@ -418,9 +418,9 @@ async function runAllQuariesTests() {
   results.Q5 = await testCoursesAboveAvgCredit(ids);
   results.Q6 = await testMostEnrolledCourse(ids);
   results.Q7 = await testRecentPayments30Days(ids);
-  results.Q8 = await testAverageGradePerCourse(ids);
+  results.Q8 = await testAverageCourseCreditPerDepartment(ids);
   results.Q9 = await testStudentsSurnameEndsWithSon(ids);
-  results.Q10 = await testEnrollmentStatsPerCourse(ids);
+  results.Q10 = await testEnrollmentCountPerCourse(ids);
   results.Q11 = await testStudentsNotEnrolled(ids);
   results.Q12 = await testHighestSalaryInstructor(ids);
   results.Q13 = await testAvgSalaryPerDepartment(ids);

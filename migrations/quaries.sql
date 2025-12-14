@@ -71,13 +71,13 @@ WHERE p.Payment_Date >= CURRENT_DATE - INTERVAL '30 days';
 
 
 /* ----------------------------------------------------------
-   8. Calculate the Average Grade for Each Course
-   Function: fn_get_average_grade_per_course
+   8. Calculate the Average Course Credit Per Department
+   Function: fn_get_average_course_credit_per_department
 -----------------------------------------------------------*/
-SELECT c.Course_Name, AVG(NULLIF(TRY_CAST(e.Grade AS INT), 0)) AS Average_Grade
-FROM Course c
-JOIN Enrollment e ON c.Course_ID = e.Course_ID
-GROUP BY c.Course_ID;
+SELECT d.Department_Name, AVG(c.Credit) AS Average_Credit
+FROM Department d
+JOIN Course c ON d.Department_No = c.Department_No
+GROUP BY d.Department_No;
 
 
 /* ----------------------------------------------------------
@@ -90,12 +90,12 @@ WHERE LOWER(S_Surname) LIKE '%son';
 
 
 /* ----------------------------------------------------------
-   10. Show Total Enrollment Count and Average Semester per Course
-   Function: fn_get_enrollment_stats_per_course
+   10. Show Total Enrollment Count Per Course
+   Function: fn_get_enrollment_count_per_course
 -----------------------------------------------------------*/
-SELECT c.Course_Name, COUNT(e.Student_ID) AS Student_Count, AVG(e.Semester) AS Avg_Semester
+SELECT c.Course_Name, COUNT(e.Student_ID) AS Student_Count
 FROM Course c
-JOIN Enrollment e ON c.Course_ID = e.Course_ID
+LEFT JOIN Enrollment e ON c.Course_ID = e.Course_ID
 GROUP BY c.Course_ID;
 
 

@@ -122,19 +122,19 @@ export async function getRecentPayments30Days(res) {
   }
 }
 
-// # Query 8: Get Average Grade Per Course
-export async function getAverageGradePerCourse(res) {
+// # Query 8: Get Average Course Credit Per Department
+export async function getAverageCourseCreditPerDepartment(res) {
   try {
     const result = await sql`
-      SELECT c.Course_Name, AVG(NULLIF(TRY_CAST(e.Grade AS INT), 0)) AS Average_Grade
-      FROM Course c
-      JOIN Enrollment e ON c.Course_ID = e.Course_ID
-      GROUP BY c.Course_ID
+      SELECT d.Department_Name, AVG(c.Credit) AS Average_Credit
+      FROM Department d
+      JOIN Course c ON d.Department_No = c.Department_No
+      GROUP BY d.Department_No
     `;
 
-    handleSuccess(res, result, 'Average grade per course retrieved');
+    handleSuccess(res, result, 'Average course credit per department retrieved');
   } catch (error) {
-    handleError(res, error, 'Failed to get average grade per course');
+    handleError(res, error, 'Failed to get average course credit per department');
   }
 }
 
@@ -153,19 +153,19 @@ export async function getStudentsSurnameEndsWithSon(res) {
   }
 }
 
-// # Query 10: Get Enrollment Stats Per Course
-export async function getEnrollmentStatsPerCourse(res) {
+// # Query 10: Get Total Enrollment Count Per Course
+export async function getEnrollmentCountPerCourse(res) {
   try {
     const result = await sql`
-      SELECT c.Course_Name, COUNT(e.Student_ID) AS Student_Count, AVG(e.Semester) AS Avg_Semester
+      SELECT c.Course_Name, COUNT(e.Student_ID) AS Student_Count
       FROM Course c
-      JOIN Enrollment e ON c.Course_ID = e.Course_ID
+      LEFT JOIN Enrollment e ON c.Course_ID = e.Course_ID
       GROUP BY c.Course_ID
     `;
 
-    handleSuccess(res, result, 'Enrollment stats per course retrieved');
+    handleSuccess(res, result, 'Enrollment count per course retrieved');
   } catch (error) {
-    handleError(res, error, 'Failed to get enrollment stats per course');
+    handleError(res, error, 'Failed to get enrollment count per course');
   }
 }
 
@@ -259,9 +259,9 @@ export default {
   getCoursesAboveAvgCredit,
   getMostEnrolledCourse,
   getRecentPayments30Days,
-  getAverageGradePerCourse,
+  getAverageCourseCreditPerDepartment,
   getStudentsSurnameEndsWithSon,
-  getEnrollmentStatsPerCourse,
+  getEnrollmentCountPerCourse,
   getStudentsNotEnrolled,
   getHighestSalaryInstructor,
   getAvgSalaryPerDepartment,
