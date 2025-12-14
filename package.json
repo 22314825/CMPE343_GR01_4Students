@@ -2,11 +2,14 @@
   "name": "cmpe343_gr01_4students",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/ui/main.cjs",
   "scripts": {
-    "test": "node src/test/testControllers.js",
-    "test controllers": "node src/test/testConnection.js",
-    "migrate": "node migrations/migrate.js"
+    "test connection": "node src/test/testConnection.js",
+    "test controllers": "node src/test/testControllers.js",
+    "test queries": "node src/test/testQueries.js",
+    "migrate": "node migrations/migrate.js",
+    "start": "electron .",
+    "ui": "electron ."
   },
   "repository": {
     "type": "git",
@@ -23,7 +26,8 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
     "dotenv": "^17.2.3",
+    "electron": "^39.2.6",
     "path": "^0.12.7",
-    "electron": "^39.2.6"
+    "readline": "^1.3.0"
   }
 }
