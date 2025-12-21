@@ -6,7 +6,7 @@
   "scripts": {
     "test_connection": "node src/test/testConnection.js",
     "test_controllers": "node src/test/testControllers.js",
-    "test_queries": "node src/test/testQueries.js",
+    "test_queries": "node src/test/testQuaries.js",
     "migrate": "node migrations/migrate.js",
     "start": "electron .",
     "ui": "electron ."
